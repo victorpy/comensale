@@ -20,7 +20,11 @@ if(!$_SESSION['email'])
         margin-top: 150px;  
   
 </style>  
-<body>  
+<body> 
+
+<br>
+<a href="welcome.php"><button class="btn btn-danger">Inicio</button></a>
+<a href="logout.php"><button class="btn btn-danger">Salir</button></a> 
   
 <div class="container"><!-- container class is used to centered  the body of the browser with some decent width-->  
     <div class="row"><!-- row class is used for grid system in Bootstrap-->  
@@ -33,14 +37,14 @@ if(!$_SESSION['email'])
                     <form role="form" method="post" action="registerfood.php">  
                         <fieldset>  
 							<div class="form-group">  
-                                <input class="form-control" placeholder="Id" name="id" type="hidden" value=<?php echo $_GET['id'] ?> autofocus>  
+                                <input class="form-control" placeholder="Id" name="id" type="hidden" value="<?php echo isset($_GET['id']) ? $_GET['id'] : "" ?>" autofocus>  
                             </div>  
                             <div class="form-group">  
-                                <input class="form-control" placeholder="Cedula" name="ci" type="text" value=<?php echo $_GET['ci'] ?> autofocus>  
+                                <input class="form-control" placeholder="Cedula" name="ci" type="text" value="<?php echo isset($_GET['ci']) ? $_GET['ci'] : "" ?>" autofocus>  
                             </div>  
   
                             <div class="form-group">  
-                                <input class="form-control" placeholder="Nombre" name="name" type="text" value="<?php echo $_GET['name'] ?>" autofocus>  
+                                <input class="form-control" placeholder="Nombre" name="name" type="text" value="<?php echo isset($_GET['name']) ? $_GET['name'] : "" ?>" autofocus>  
                             </div>  
                             <!--<div class="form-group">  
                                 <input class="form-control" placeholder="Password" name="password" type="password" value="">  
@@ -73,40 +77,47 @@ if(!$_SESSION['email'])
 <?php  
   
 include("database/db_conection.php");//make connection here  
+error_log("11111111111111");
 if(isset($_POST['register']))  
 {  
+	
 	$id = $_POST['id'];
     $name=$_POST['name'];//here getting result from the post array after submitting the form.  
     $ci=$_POST['ci'];//same  
     $type=$_POST['type'];
     //$user_email=$_POST['email'];//same  
-  
+	
+	error_log("22222222222  $id - $name - $ci ");
   
     if($name=='')  
     {  
         //javascript use for input checking  
-        echo"<script>alert('Ingresa un nombre')</script>";  
-		exit();//this use if first is not work then other will not show  
+        echo "<script>alert('Ingresa un nombre')</script>";  
+        return;
+		//exit();//this use if first is not work then other will not show  
     }  
   
     if($ci=='')  
     {  
         echo"<script>alert('Ingresa cedula de identidad')</script>";  
-		exit();  
+        return;
+		//exit();  
     }  
   
     
 //here query check weather if user already registered so can't register again.  
       
 //insert the user into the database.  
-    $insert_user="insert into registro (id_comensal,date, type, amount) VALUES ('$id', CURRENT_TIMESTAMP, '$type', 10000)";  
+    $insert_user="insert into registro (id_comensal,date, type, amount, company) VALUES ('$id', CURRENT_TIMESTAMP, '$type', 10000,  {$_SESSION['company']})";  
     //error_log($insert_user);
     if(mysqli_query($dbcon,$insert_user))  
     {  
         //echo"<script>window.open('welcome.php','_self')</script>"; 
         echo "<script>alert('Regsitro para Comensal con ci: $ci creado!')</script>";   
         echo "<script>window.open('welcome.php','_self')</script>";  
-    }  
+    } else {
+		error_log("DB Error description: " . mysqli_error($dbcon));
+	}  
   
   
   

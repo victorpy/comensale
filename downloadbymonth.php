@@ -2,7 +2,7 @@
 
 include("database/db_conection.php");  
 
-error_log($_GET['selected']);
+error_log($_SESSION['email']);
 
 function mysqli_field_name($result, $field_offset)
 {
@@ -12,10 +12,10 @@ function mysqli_field_name($result, $field_offset)
 
 $startLastMonth = date("Y-m-d",mktime(0, 0, 0, $_GET['month'], 1,$_GET['year']));
 $endLastMonth = date("Y-m-d",mktime(0, 0, 0, $_GET['month'] +1 , 0, $_GET['year']));
+$company = $_GET['company'];
 
 
-
-$result = mysqli_query($dbcon,"select c.ci, c.name, r.date, r.type, r.amount  from comensale.registro as r, comensale.comensal as c where c.id = r.id_comensal and r.date >= '$startLastMonth' and r.date <= '$endLastMonth'");
+$result = mysqli_query($dbcon,"select c.ci, c.name, r.date, r.type, r.amount  from comensale.registro as r, comensale.comensal as c where c.id = r.id_comensal and r.company = $company and r.date >= '$startLastMonth' and r.date <= '$endLastMonth'");
 if (!$result) die('Couldn\'t fetch records');
 $num_fields = mysqli_num_fields($result);
 $headers = array();

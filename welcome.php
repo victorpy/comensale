@@ -22,8 +22,18 @@ if(!$_SESSION['email'])
 </style>  
   
 <body>  
-<h1>Hola</h1> <h2> <?php  
-echo $_SESSION['email'];  
+<h2>Hola</h2> <h2> <?php  
+if($_SESSION['role'] == 'report'){
+	
+	echo "{$_SESSION['email']} de \"Reportes\"";
+		
+}else if($_SESSION['role'] == 'admin'){
+	
+	echo "{$_SESSION['email']} \"Admin\"";
+	
+} else {
+	echo "{$_SESSION['email']} de \"{$_SESSION['companyName']}\" ";  
+}
 ?>  
   </h2> 
   

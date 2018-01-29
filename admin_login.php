@@ -83,6 +83,7 @@ if(isset($_POST['admin_login']))//this will tell us what to do if some data has 
         error_log(" $row[3] $row[4] ");
         $_SESSION['email']=$row[3];//here session is used and value of $user_email store in $_SESSION.         
         $_SESSION['role']=$row[4];
+        $_SESSION['company']=$row[5];
         
     }  
     else {echo"<script>alert('Datos incorrectos, favor pruebe nuevamente..!')</script>";}  

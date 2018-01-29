@@ -67,6 +67,12 @@ if(isset($_POST['login']))
     $check_user="select * from users WHERE email='$user_email'AND password='$user_pass'";  
   
     $run=mysqli_query($dbcon,$check_user);  
+    
+    if(!$run){
+		echo "<script>alert('Error de base de datos, contactar al administardor')</script>";  
+		return;
+	}
+		
   
     if(mysqli_num_rows($run))  
     {  
@@ -76,6 +82,12 @@ if(isset($_POST['login']))
         
         $_SESSION['email']=$row[3];//here session is used and value of $user_email store in $_SESSION.         
         $_SESSION['role']=$row[4];
+        $_SESSION['company']=$row[5];
+        
+        $sql = "select name from company where id = {$_SESSION['company']}";
+        $run=mysqli_query($dbcon,$sql);
+        $row = mysqli_fetch_row($run);
+        $_SESSION['companyName'] = $row[0];
   
     }  
     else  

@@ -33,14 +33,16 @@ if(!$_SESSION['email'])
 function clickReport(){
 	var month = document.getElementById('month');
 	var year =  document.getElementById('year');
+	var company =  document.getElementById('company');
 	
 	var monthStr = month.options[month.selectedIndex].value;
 	var yearStr = year.options[year.selectedIndex].value;
+	var companyStr = company.options[company.selectedIndex].value;
 	//console.log(month.options[month.selectedIndex].value);
 	
 	var href = document.getElementById('reportdl');
 	
-	href.setAttribute('href', "downloadbymonth.php?year="+yearStr+"&month="+monthStr);
+	href.setAttribute('href', "downloadbymonth.php?year="+yearStr+"&month="+monthStr+"&company="+companyStr);
 	
 }
 </script> 
@@ -82,6 +84,29 @@ function clickReport(){
 						  
 						 ?>								
 					  </select>
+					  
+					 <?php if($_SESSION['role'] == 'report') { ?>  
+
+						<select class="form-control" name="company" id="company">
+						<?php
+						
+						  include("database/db_conection.php"); 
+						  $sql = "select * from company";
+						  $run=mysqli_query($dbcon,$sql);//here run the sql query.  
+			  
+							while($row=mysqli_fetch_array($run))//while look to fetch the result and store in a array $row.  
+							{  								
+								if($row[0] != 1){//1: admin
+									printf('<option value="%s">%s</option>', $row[0], $row[1]);
+								}
+						    }
+						  
+						  
+						 ?>								
+					  </select>
+
+					<?php }?>
+					  
 					</div> 
 					
 					<!--<div class="form-group">  
@@ -129,7 +154,15 @@ function clickReport(){
 					
 					//error_log(" $startLastMonth  $endLastMonth ");
 					
-					$view_users_query="select c.ci, c.name, r.date, r.type  from comensale.registro as r, comensale.comensal as c where c.id = r.id_comensal and r.date >= '$startLastMonth' and r.date <= '$endLastMonth' LIMIT $limit OFFSET 0 ";//select query for viewing users.  
+					$company = '';
+					
+					if($_SESSION['role'] == 'report' || $_SESSION['role'] == 'admin'){
+						$company = $_POST['company'];
+					}else {
+						$company = $_SESSION['company'];
+					}
+					
+					$view_users_query="select c.ci, c.name, r.date, r.type  from comensale.registro as r, comensale.comensal as c where c.id = r.id_comensal and r.date >= '$startLastMonth' and r.date <= '$endLastMonth' and company = $company LIMIT $limit OFFSET 0 ";//select query for viewing users.  
 					
 					error_log(" $view_users_query ");
 
@@ -166,7 +199,7 @@ function clickReport(){
 				
 				if(isset($_GET['page']))  
 				{
-					//error_log($_POST['month']." ".$_POST['year']."\n");
+					error_log("GET ".$_GET['startMonth']." ".$_GET['endMonth']."\n");
 					//$date = explode("-", $_POST['month']);
 					
 					$startLastMonth = $_GET['startMonth'];
@@ -174,7 +207,15 @@ function clickReport(){
 					
 					//error_log(" $startLastMonth  $endLastMonth ");
 					
-					$view_users_query="select c.ci, c.name, r.date, r.type  from comensale.registro as r, comensale.comensal as c where c.id = r.id_comensal and r.date >= '$startLastMonth' and r.date <= '$endLastMonth' LIMIT {$_GET['limit']} OFFSET {$_GET['offset']} ";//select query for viewing users.  
+					$company = '';
+					
+					if($_SESSION['role'] == 'report' || $_SESSION['role'] == 'admin'){
+						$company = $_GET['company'];
+					}else {
+						$company = $_SESSION['company'];
+					}
+					
+					$view_users_query="select c.ci, c.name, r.date, r.type  from comensale.registro as r, comensale.comensal as c where c.id = r.id_comensal and r.date >= '$startLastMonth' and r.date <= '$endLastMonth' and company = $company LIMIT {$_GET['limit']} OFFSET {$_GET['offset']} ";//select query for viewing users.  
 					$run=mysqli_query($dbcon,$view_users_query);//here run the sql query.  
 			  
 					while($row=mysqli_fetch_array($run))//while look to fetch the result and store in a array $row.  
@@ -183,19 +224,17 @@ function clickReport(){
 						$ci=$row[0];  
 						$name=$row[1];  
 						$type=$row[3];  
-			  
-			  
-			  
+			  		  
 					?>  
 			  
-					<tr>  
-			<!--here showing results in the table -->  
-						<td><?php echo $date;  ?></td>  
-						<td><?php echo $ci;  ?></td>  
-						<td><?php echo $name;  ?></td>  
-						<td><?php echo $type;  ?></td>  
-						
-					</tr>  
+						<tr>  
+				<!--here showing results in the table -->  
+							<td><?php echo $date;  ?></td>  
+							<td><?php echo $ci;  ?></td>  
+							<td><?php echo $name;  ?></td>  
+							<td><?php echo $type;  ?></td>  
+							
+						</tr>  
 			  
 					<?php } 
 					
@@ -206,18 +245,18 @@ function clickReport(){
 			
 			<?php 
 			
-			$sql = "select count(id) from comensale.registro as r where r.date >= '$startLastMonth' and r.date <= '$endLastMonth'"; 
+			$sql = "select count(id) from comensale.registro as r where r.date >= '$startLastMonth' and r.date <= '$endLastMonth' and company = $company"; 
 			//error_log("$sql"); 
 			$rs_result = mysqli_query($dbcon,$sql);  
 			$row = mysqli_fetch_row($rs_result);  
 			$total_records = $row[0];
 			$division = (float) ((1.0*$total_records) / (1.0*$limit));
 			$total_pages = ceil((float) $total_records / (float) $limit);
-			//error_log("Div2 (1.0*$total_records) Tot $total_pages");  
+			error_log("Div2 (1.0*$total_records) Tot $total_pages");  
 			$pagLink = "<ul class='pagination'>";  
 			//error_log("in pagination $startLastMonth  $endLastMonth ");
 			for ($i=1; $i<=$total_pages; $i++) {  
-						 $pagLink .= "<li><a href=viewbymonth.php?page=".$i."&startMonth=".$startLastMonth."&endMonth=".$endLastMonth."&offset=".$i*$limit."&limit=".$limit.">".$i."</a></li>";  
+						 $pagLink .= "<li><a href=viewbymonth.php?company=$company&page=$i&startMonth=".$startLastMonth."&endMonth=".$endLastMonth."&offset=".($i-1)*$limit."&limit=".$limit.">".$i."</a></li>";  
 			};  
 			echo $pagLink . "</ul>";  
 			?>
