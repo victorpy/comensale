@@ -77,7 +77,7 @@ if(!$_SESSION['email'])
 <?php  
   
 include("database/db_conection.php");//make connection here  
-error_log("11111111111111");
+//error_log("11111111111111");
 if(isset($_POST['register']))  
 {  
 	
@@ -87,7 +87,7 @@ if(isset($_POST['register']))
     $type=$_POST['type'];
     //$user_email=$_POST['email'];//same  
 	
-	error_log("22222222222  $id - $name - $ci ");
+	//error_log("22222222222  $id - $name - $ci ");
   
     if($name=='')  
     {  
@@ -104,8 +104,18 @@ if(isset($_POST['register']))
 		//exit();  
     }  
   
-    
-//here query check weather if user already registered so can't register again.  
+	$today = date("Y-m-d");
+    $select_sql = "select * from registro where id_comensal = $id and date = '$today'";
+    error_log($select_sql);
+
+	$run = mysqli_query($dbcon,$select_sql);
+	$row = mysqli_fetch_row($run);
+	
+	if($row != null){
+		echo"<script>alert('Comensal $name con $ci ya tiene un registro el dia de hoy')</script>";  
+		echo "<script>window.open('welcome.php','_self')</script>"; 
+        return;
+	}
       
 //insert the user into the database.  
     $insert_user="insert into registro (id_comensal,date, type, amount, company) VALUES ('$id', CURRENT_TIMESTAMP, '$type', 10000,  {$_SESSION['company']})";  
